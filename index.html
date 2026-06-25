@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<meta name="theme-color" content="#8ec9f0" />
+<title>구름 여행 기록</title>
+<style>
+  /* ===== 기본/리셋 ===== */
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", "맑은 고딕", system-ui, sans-serif;
+    color: #2c3e50;
+    min-height: 100vh;
+    background: linear-gradient(180deg, #9fd6f5 0%, #bfe4f7 38%, #e3f3fc 100%);
+    background-attachment: fixed;
+    overflow-x: hidden;
+  }
+
+  /* ===== 구름 배경 ===== */
+  .sky { position: fixed; inset: 0; z-index: -1; overflow: hidden; }
+  .cloud {
+    position: absolute;
+    background: #ffffff;
+    border-radius: 50%;
+    filter: blur(2px);
+    opacity: 0.9;
+    box-shadow:
+      40px 12px 0 -4px #fff,
+      90px 18px 0 -2px #fff,
+      130px 8px 0 -6px #fff,
+      70px -10px 0 -8px #fff;
+    animation: drift linear infinite;
+  }
+  @keyframes drift {
+    from { transform: translateX(-260px); }
+    to   { transform: translateX(110vw); }
+  }
+  .c1 { top: 8%;  width: 90px;  height: 40px; animation-duration: 70s; opacity: .95; }
+  .c2 { top: 24%; width: 60px;  height: 28px; animation-duration: 95s; animation-delay: -30s; opacity: .8; }
+  .c3 { top: 46%; width: 110px; height: 48px; animation-duration: 120s; animation-delay: -60s; opacity: .7; }
+  .c4 { top: 64%; width: 70px;  height: 32px; animation-duration: 85s; animation-delay: -15s; opacity: .85; }
+  .c5 { top: 82%; width: 95px;  height: 42px; animation-duration: 110s; animation-delay: -45s; opacity: .65; }
+
+  /* ===== 레이아웃 ===== */
+  .app { max-width: 560px; margin: 0 auto; padding: 16px 14px 120px; position: relative; }
+  header.top { text-align: center; padding: 6px 0 14px; }
+  header.top h1 { margin: 0; font-size: 22px; letter-spacing: -0.5px; color: #2c5d8a; text-shadow: 0 1px 0 #fff; }
+  header.top p { margin: 4px 0 0; font-size: 12px; color: #5d7891; }
+
+  .card {
+    background: rgba(255,255,255,0.82);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    border-radius: 18px;
+    box-shadow: 0 6px 20px rgba(80,120,160,0.18);
+    padding: 14px;
+    margin-bottom: 14px;
+  }
+
+  /* ===== 여행 선택 영역 ===== */
+  .trip-bar { display: flex; gap: 8px; align-items: center; }
+  .trip-bar select {
+    flex: 1; min-height: 46px; font-size: 16px; border: 1px solid #cfe2f0;
+    border-radius: 12px; padding: 0 12px; background: #fff; color: #2c3e50;
+  }
+  .trip-meta { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
+  .trip-meta .cur { font-size: 13px; color: #5d7891; }
+  .trip-actions { display: flex; gap: 6px; }
+
+  /* ===== 버튼 ===== */
+  button {
+    font-family: inherit; cursor: pointer; border: none; border-radius: 12px;
+    font-size: 15px; min-height: 44px; padding: 0 14px; transition: transform .05s ease, filter .15s ease;
+  }
+  button:active { transform: scale(0.97); }
+  .btn-primary { background: #4a9fe0; color: #fff; font-weight: 600; }
+  .btn-primary:hover { filter: brightness(1.05); }
+  .btn-soft { background: #eaf4fb; color: #2c5d8a; }
+  .btn-ghost { background: transparent; color: #6a8aa3; min-height: 36px; padding: 0 8px; font-size: 13px; }
+  .btn-danger { background: #f6dada; color: #b5443a; font-weight: 600; }
+  .btn-icon { background: transparent; min-height: 36px; min-width: 36px; padding: 0; font-size: 17px; }
+  .full { width: 100%; }
+
+  /* ===== 탭 ===== */
+  .tabs { display: flex; gap: 8px; margin-bottom: 14px; }
+  .tabs button {
+    flex: 1; min-height: 50px; font-size: 16px; font-weight: 600;
+    background: rgba(255,255,255,0.6); color: #6a8aa3; border-radius: 14px;
+  }
+  .tabs button.active { background: #4a9fe0; color: #fff; box-shadow: 0 4px 12px rgba(74,159,224,0.4); }
+
+  /* ===== 폼 ===== */
+  .form-grid { display: flex; flex-direction: column; gap: 10px; }
+  .row2 { display: flex; gap: 10px; }
+  .row2 > * { flex: 1; min-width: 0; }
+  label.fld { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: #5d7891; }
+  input, textarea, select.fldsel {
+    font-family: inherit; font-size: 16px; border: 1px solid #cfe2f0; border-radius: 12px;
+    padding: 11px 12px; background: #fff; color: #2c3e50; width: 100%;
+  }
+  input:focus, textarea:focus, select:focus { outline: none; border-color: #4a9fe0; box-shadow: 0 0 0 3px rgba(74,159,224,0.15); }
+  textarea { resize: vertical; min-height: 54px; }
+
+  .add-toggle { margin-bottom: 12px; }
+
+  /* ===== 리스트 항목 ===== */
+  .item {
+    background: rgba(255,255,255,0.9); border-radius: 14px; padding: 12px;
+    margin-bottom: 10px; box-shadow: 0 2px 8px rgba(80,120,160,0.12);
+    border-left: 5px solid #cfe2f0;
+  }
+  .item .head { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+  .item .title { font-size: 16px; font-weight: 600; }
+  .item .sub { font-size: 13px; color: #5d7891; margin-top: 3px; }
+  .item .note { font-size: 14px; color: #3a4a5a; margin-top: 6px; white-space: pre-wrap; }
+  .item .amt { font-size: 17px; font-weight: 700; color: #2c5d8a; white-space: nowrap; }
+  .item .ops { display: flex; gap: 2px; }
+
+  .badge { display: inline-block; font-size: 12px; font-weight: 600; padding: 3px 9px; border-radius: 999px; color: #fff; }
+
+  /* 카테고리 색 */
+  .cat-이동수단 { background:#5b8def; } .b-이동수단 { border-left-color:#5b8def; }
+  .cat-식사   { background:#f0883e; } .b-식사   { border-left-color:#f0883e; }
+  .cat-카페   { background:#c08457; } .b-카페   { border-left-color:#c08457; }
+  .cat-숙박   { background:#7e6cd6; } .b-숙박   { border-left-color:#7e6cd6; }
+  .cat-기타   { background:#7a93a8; } .b-기타   { border-left-color:#7a93a8; }
+
+  /* ===== 경비 요약 ===== */
+  .summary { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 4px; }
+  .chip {
+    background: rgba(255,255,255,0.95); border-radius: 12px; padding: 8px 10px;
+    font-size: 13px; display: flex; flex-direction: column; gap: 2px; min-width: 84px; flex: 1;
+    box-shadow: 0 2px 6px rgba(80,120,160,0.1);
+  }
+  .chip .clabel { color: #5d7891; font-size: 12px; }
+  .chip .cval { font-weight: 700; color: #2c3e50; font-size: 15px; }
+  .total {
+    margin-top: 12px; background: linear-gradient(135deg,#4a9fe0,#6db4ec); color: #fff;
+    border-radius: 14px; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center;
+    box-shadow: 0 6px 16px rgba(74,159,224,0.4);
+  }
+  .total .tlabel { font-size: 14px; opacity: .95; }
+  .total .tval { font-size: 22px; font-weight: 800; }
+
+  /* ===== 빈 상태 ===== */
+  .empty { text-align: center; color: #6a8aa3; font-size: 14px; padding: 26px 10px; line-height: 1.6; }
+  .empty .big { font-size: 30px; display: block; margin-bottom: 6px; }
+
+  .section-title { font-size: 13px; color: #5d7891; margin: 2px 4px 8px; font-weight: 600; }
+
+  /* ===== 모달 (직접 입력창 — 인앱 브라우저에서도 동작) ===== */
+  .modal-overlay {
+    position: fixed; inset: 0; z-index: 50;
+    background: rgba(40,60,80,0.45);
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px;
+  }
+  .modal {
+    background: #fff; border-radius: 18px; width: 100%; max-width: 380px;
+    padding: 18px; box-shadow: 0 14px 40px rgba(30,60,90,0.35);
+    animation: pop .15s ease;
+  }
+  @keyframes pop { from { transform: scale(.94); opacity: .6; } to { transform: scale(1); opacity: 1; } }
+  .modal h3 { margin: 0 0 14px; font-size: 18px; color: #2c5d8a; }
+  .modal p.msg { margin: 2px 0 18px; font-size: 15px; line-height: 1.5; white-space: pre-wrap; }
+  .modal .form-grid { margin-bottom: 16px; }
+
+  /* ===== 토스트 ===== */
+  .toast {
+    position: fixed; left: 50%; bottom: 90px; transform: translateX(-50%);
+    background: rgba(44,93,138,0.95); color: #fff; padding: 11px 18px; border-radius: 999px;
+    font-size: 14px; z-index: 60; box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+    transition: opacity .3s ease; max-width: 88%; text-align: center;
+  }
+
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+  <div class="sky">
+    <div class="cloud c1"></div>
+    <div class="cloud c2"></div>
+    <div class="cloud c3"></div>
+    <div class="cloud c4"></div>
+    <div class="cloud c5"></div>
+  </div>
+
+  <div class="app">
+    <header class="top">
+      <h1>☁️ 구름 여행 기록</h1>
+      <p>일정과 경비를 한 곳에 기록해요</p>
+    </header>
+
+    <!-- 여행 선택 -->
+    <div class="card">
+      <div class="trip-bar">
+        <select id="tripSelect"></select>
+        <button class="btn-soft" id="addTripBtn">＋ 여행</button>
+      </div>
+      <div class="trip-meta" id="tripMeta">
+        <span class="cur" id="tripCur"></span>
+        <span class="trip-actions">
+          <button class="btn-ghost" id="renameTripBtn">이름수정</button>
+          <button class="btn-ghost" id="deleteTripBtn">삭제</button>
+        </span>
+      </div>
+    </div>
+
+    <div id="tripBody">
+      <!-- 탭 -->
+      <div class="tabs">
+        <button id="tabSchedule" class="active" onclick="switchTab('schedule')">📅 일정</button>
+        <button id="tabExpense" onclick="switchTab('expense')">💰 경비</button>
+      </div>
+
+      <!-- ===== 일정 탭 ===== -->
+      <section id="panelSchedule">
+        <div class="add-toggle">
+          <button class="btn-soft full" onclick="toggleForm('sForm')">＋ 일정 추가</button>
+        </div>
+        <div class="card hidden" id="sForm">
+          <div class="form-grid">
+            <div class="row2">
+              <label class="fld">날짜<input type="date" id="sDate"></label>
+              <label class="fld">시간<input type="time" id="sTime"></label>
+            </div>
+            <label class="fld">장소<input type="text" id="sPlace" placeholder="예: 오사카성"></label>
+            <label class="fld">비고<textarea id="sNote" placeholder="메모, 예약번호 등"></textarea></label>
+            <div class="row2">
+              <button class="btn-soft" onclick="cancelEdit('schedule')">취소</button>
+              <button class="btn-primary" id="sSaveBtn" onclick="saveSchedule()">저장</button>
+            </div>
+          </div>
+        </div>
+        <div id="scheduleList"></div>
+      </section>
+
+      <!-- ===== 경비 탭 ===== -->
+      <section id="panelExpense" class="hidden">
+        <div class="card">
+          <div class="summary" id="expSummary"></div>
+          <div class="total">
+            <span class="tlabel">총 합계</span>
+            <span class="tval" id="expTotal">-</span>
+          </div>
+        </div>
+
+        <div class="add-toggle">
+          <button class="btn-soft full" onclick="toggleForm('eForm')">＋ 경비 추가</button>
+        </div>
+        <div class="card hidden" id="eForm">
+          <div class="form-grid">
+            <label class="fld">구분
+              <select class="fldsel" id="eCat">
+                <option>이동수단</option><option>식사</option><option>카페</option><option>숙박</option><option>기타</option>
+              </select>
+            </label>
+            <div class="row2">
+              <label class="fld">날짜<input type="date" id="eDate"></label>
+              <label class="fld">금액<input type="number" id="eAmount" inputmode="decimal" placeholder="0"></label>
+            </div>
+            <label class="fld">장소<input type="text" id="ePlace" placeholder="예: 편의점, 지하철"></label>
+            <div class="row2">
+              <button class="btn-soft" onclick="cancelEdit('expense')">취소</button>
+              <button class="btn-primary" id="eSaveBtn" onclick="saveExpense()">저장</button>
+            </div>
+          </div>
+        </div>
+        <div id="expenseList"></div>
+      </section>
+    </div>
+
+    <!-- 여행이 하나도 없을 때 -->
+    <div id="noTrip" class="card empty hidden">
+      <span class="big">🧳</span>
+      아직 여행이 없어요.<br>위 <b>＋ 여행</b> 버튼으로 첫 여행을 추가해 보세요!
+    </div>
+  </div>
+
+  <!-- ===== 여행 추가/수정 모달 ===== -->
+  <div class="modal-overlay hidden" id="tripModal">
+    <div class="modal">
+      <h3 id="tripModalTitle">새 여행</h3>
+      <div class="form-grid">
+        <label class="fld">여행 이름
+          <input type="text" id="mTripName" placeholder="예: 오사카 3박4일">
+        </label>
+        <label class="fld">통화
+          <select class="fldsel" id="mTripCurSel">
+            <option value="₩">₩ 원 (KRW)</option>
+            <option value="$">$ 달러 (USD)</option>
+            <option value="¥">¥ 엔 (JPY)</option>
+            <option value="€">€ 유로 (EUR)</option>
+            <option value="__custom">직접 입력…</option>
+          </select>
+        </label>
+        <label class="fld hidden" id="mTripCurCustomWrap">통화 기호 직접 입력
+          <input type="text" id="mTripCurCustom" placeholder="예: ฿, ₫, A$" maxlength="4">
+        </label>
+      </div>
+      <div class="row2">
+        <button class="btn-soft" onclick="closeTripModal()">취소</button>
+        <button class="btn-primary" onclick="submitTripModal()">저장</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 확인(삭제) 모달 ===== -->
+  <div class="modal-overlay hidden" id="confirmModal">
+    <div class="modal">
+      <p class="msg" id="confirmMsg"></p>
+      <div class="row2">
+        <button class="btn-soft" onclick="resolveConfirm(false)">취소</button>
+        <button class="btn-danger" id="confirmOkBtn" onclick="resolveConfirm(true)">삭제</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 토스트 -->
+  <div id="toast" class="toast hidden"></div>
+
+<script>
+/* =========================================================
+   데이터 모델
+   trips: [{ id, name, currency, schedules:[], expenses:[] }]
+   schedule: { id, date, time, place, note }
+   expense:  { id, category, date, place, amount }
+   ========================================================= */
+const STORAGE_KEY = 'cloudTravelData_v1';
+const CATEGORIES = ['이동수단','식사','카페','숙박','기타'];
+
+let state = { trips: [], currentTripId: null };
+let activeTab = 'schedule';
+let editing = { schedule: null, expense: null }; // 편집 중인 항목 id
+
+/* ---------- 저장 / 불러오기 ---------- */
+function load() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed && Array.isArray(parsed.trips)) state = parsed;
+    }
+  } catch (e) {
+    console.error('데이터 불러오기 실패', e);
+    state = { trips: [], currentTripId: null };
+  }
+  if (!state.trips.find(t => t.id === state.currentTripId)) {
+    state.currentTripId = state.trips[0] ? state.trips[0].id : null;
+  }
+}
+function save() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+  catch (e) { console.error('저장 실패', e); showToast('저장에 실패했습니다. 저장공간을 확인해주세요.'); }
+}
+
+/* ---------- 유틸 ---------- */
+function uid() { return Date.now().toString(36) + Math.floor(Math.random()*1e6).toString(36); }
+function currentTrip() { return state.trips.find(t => t.id === state.currentTripId) || null; }
+function fmtMoney(n) {
+  const t = currentTrip();
+  const sym = t ? t.currency : '₩';
+  const num = Number(n) || 0;
+  const hasDec = num % 1 !== 0;
+  const str = num.toLocaleString('ko-KR', { minimumFractionDigits: hasDec ? 2 : 0, maximumFractionDigits: 2 });
+  return sym + str;
+}
+function esc(s) { return (s||'').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+let toastTimer = null;
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.remove('hidden');
+  el.style.opacity = '1';
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => {
+    el.style.opacity = '0';
+    setTimeout(() => el.classList.add('hidden'), 300);
+  }, 1800);
+}
+
+/* ---------- 확인 모달 (confirm 대체) ---------- */
+let confirmResolver = null;
+function showConfirm(msg, okText) {
+  document.getElementById('confirmMsg').textContent = msg;
+  document.getElementById('confirmOkBtn').textContent = okText || '삭제';
+  document.getElementById('confirmModal').classList.remove('hidden');
+  return new Promise(res => { confirmResolver = res; });
+}
+function resolveConfirm(val) {
+  document.getElementById('confirmModal').classList.add('hidden');
+  if (confirmResolver) { confirmResolver(val); confirmResolver = null; }
+}
+
+/* ---------- 여행 추가/수정 모달 (prompt 대체) ---------- */
+let tripModalMode = 'add'; // 'add' | 'edit'
+function openTripModal(mode) {
+  tripModalMode = mode;
+  const t = currentTrip();
+  document.getElementById('tripModalTitle').textContent = mode === 'edit' ? '여행 수정' : '새 여행';
+  const nameEl = document.getElementById('mTripName');
+  const selEl = document.getElementById('mTripCurSel');
+  const customWrap = document.getElementById('mTripCurCustomWrap');
+  const customEl = document.getElementById('mTripCurCustom');
+
+  customWrap.classList.add('hidden');
+  customEl.value = '';
+
+  if (mode === 'edit' && t) {
+    nameEl.value = t.name;
+    const known = ['₩','$','¥','€'];
+    if (known.includes(t.currency)) {
+      selEl.value = t.currency;
+    } else {
+      selEl.value = '__custom';
+      customWrap.classList.remove('hidden');
+      customEl.value = t.currency;
+    }
+  } else {
+    nameEl.value = '';
+    selEl.value = '₩';
+  }
+  document.getElementById('tripModal').classList.remove('hidden');
+  setTimeout(() => nameEl.focus(), 50);
+}
+function closeTripModal() {
+  document.getElementById('tripModal').classList.add('hidden');
+}
+function onCurSelChange() {
+  const sel = document.getElementById('mTripCurSel');
+  const wrap = document.getElementById('mTripCurCustomWrap');
+  wrap.classList.toggle('hidden', sel.value !== '__custom');
+}
+function submitTripModal() {
+  const name = document.getElementById('mTripName').value.trim();
+  if (!name) { showToast('여행 이름을 입력해주세요.'); return; }
+  const sel = document.getElementById('mTripCurSel').value;
+  let cur = sel;
+  if (sel === '__custom') {
+    cur = document.getElementById('mTripCurCustom').value.trim();
+    if (!cur) { showToast('통화 기호를 입력해주세요.'); return; }
+  }
+  if (tripModalMode === 'edit') {
+    const t = currentTrip(); if (t) { t.name = name; t.currency = cur; }
+  } else {
+    const trip = { id: uid(), name, currency: cur, schedules: [], expenses: [] };
+    state.trips.push(trip);
+    state.currentTripId = trip.id;
+  }
+  closeTripModal();
+  save(); renderAll();
+}
+
+/* ---------- 여행 삭제 / 전환 ---------- */
+async function deleteTrip() {
+  const t = currentTrip(); if (!t) return;
+  const ok = await showConfirm(`'${t.name}' 여행을 삭제할까요?\n일정과 경비 기록이 모두 삭제됩니다.`);
+  if (!ok) return;
+  state.trips = state.trips.filter(x => x.id !== t.id);
+  state.currentTripId = state.trips[0] ? state.trips[0].id : null;
+  save(); renderAll();
+}
+function changeTrip(id) {
+  state.currentTripId = id;
+  resetForms();
+  save(); renderAll();
+}
+
+/* ---------- 탭 / 폼 토글 ---------- */
+function switchTab(tab) {
+  activeTab = tab;
+  document.getElementById('tabSchedule').classList.toggle('active', tab==='schedule');
+  document.getElementById('tabExpense').classList.toggle('active', tab==='expense');
+  document.getElementById('panelSchedule').classList.toggle('hidden', tab!=='schedule');
+  document.getElementById('panelExpense').classList.toggle('hidden', tab!=='expense');
+}
+function toggleForm(id) {
+  document.getElementById(id).classList.toggle('hidden');
+}
+function resetForms() {
+  ['sForm','eForm'].forEach(id => document.getElementById(id).classList.add('hidden'));
+  editing.schedule = null; editing.expense = null;
+  document.getElementById('sSaveBtn').textContent='저장';
+  document.getElementById('eSaveBtn').textContent='저장';
+}
+function cancelEdit(kind) {
+  if (kind === 'schedule') { editing.schedule = null; document.getElementById('sForm').classList.add('hidden'); clearScheduleForm(); document.getElementById('sSaveBtn').textContent='저장'; }
+  else { editing.expense = null; document.getElementById('eForm').classList.add('hidden'); clearExpenseForm(); document.getElementById('eSaveBtn').textContent='저장'; }
+}
+
+/* ---------- 일정 ---------- */
+function clearScheduleForm() { sDate.value=''; sTime.value=''; sPlace.value=''; sNote.value=''; }
+function saveSchedule() {
+  const t = currentTrip(); if (!t) return;
+  const date = sDate.value, time = sTime.value, place = sPlace.value.trim(), note = sNote.value.trim();
+  if (!date && !place) { showToast('날짜 또는 장소를 입력해주세요.'); return; }
+  if (editing.schedule) {
+    const it = t.schedules.find(s => s.id === editing.schedule);
+    if (it) Object.assign(it, { date, time, place, note });
+    editing.schedule = null; document.getElementById('sSaveBtn').textContent='저장';
+  } else {
+    t.schedules.push({ id: uid(), date, time, place, note });
+  }
+  clearScheduleForm();
+  document.getElementById('sForm').classList.add('hidden');
+  save(); renderSchedule();
+}
+function editSchedule(id) {
+  const t = currentTrip(); const it = t.schedules.find(s => s.id===id); if (!it) return;
+  sDate.value=it.date||''; sTime.value=it.time||''; sPlace.value=it.place||''; sNote.value=it.note||'';
+  editing.schedule = id;
+  document.getElementById('sSaveBtn').textContent='수정 완료';
+  document.getElementById('sForm').classList.remove('hidden');
+  document.getElementById('sForm').scrollIntoView({behavior:'smooth', block:'center'});
+}
+async function deleteSchedule(id) {
+  const ok = await showConfirm('이 일정을 삭제할까요?');
+  if (!ok) return;
+  const t = currentTrip(); t.schedules = t.schedules.filter(s => s.id!==id);
+  save(); renderSchedule();
+}
+
+/* ---------- 경비 ---------- */
+function clearExpenseForm() { eCat.value='이동수단'; eDate.value=''; ePlace.value=''; eAmount.value=''; }
+function saveExpense() {
+  const t = currentTrip(); if (!t) return;
+  const category = eCat.value, date = eDate.value, place = ePlace.value.trim();
+  const amount = parseFloat(eAmount.value);
+  if (isNaN(amount)) { showToast('금액을 입력해주세요.'); return; }
+  if (editing.expense) {
+    const it = t.expenses.find(e => e.id === editing.expense);
+    if (it) Object.assign(it, { category, date, place, amount });
+    editing.expense = null; document.getElementById('eSaveBtn').textContent='저장';
+  } else {
+    t.expenses.push({ id: uid(), category, date, place, amount });
+  }
+  clearExpenseForm();
+  document.getElementById('eForm').classList.add('hidden');
+  save(); renderExpense();
+}
+function editExpense(id) {
+  const t = currentTrip(); const it = t.expenses.find(e => e.id===id); if (!it) return;
+  eCat.value=it.category||'기타'; eDate.value=it.date||''; ePlace.value=it.place||''; eAmount.value=it.amount;
+  editing.expense = id;
+  document.getElementById('eSaveBtn').textContent='수정 완료';
+  document.getElementById('eForm').classList.remove('hidden');
+  document.getElementById('eForm').scrollIntoView({behavior:'smooth', block:'center'});
+}
+async function deleteExpense(id) {
+  const ok = await showConfirm('이 경비를 삭제할까요?');
+  if (!ok) return;
+  const t = currentTrip(); t.expenses = t.expenses.filter(e => e.id!==id);
+  save(); renderExpense();
+}
+
+/* ---------- 렌더링 ---------- */
+function renderTripSelect() {
+  const sel = document.getElementById('tripSelect');
+  sel.innerHTML = '';
+  state.trips.forEach(t => {
+    const o = document.createElement('option');
+    o.value = t.id; o.textContent = t.name;
+    if (t.id === state.currentTripId) o.selected = true;
+    sel.appendChild(o);
+  });
+  const t = currentTrip();
+  document.getElementById('tripCur').textContent = t ? `통화: ${t.currency}` : '';
+}
+
+function renderSchedule() {
+  const t = currentTrip(); const box = document.getElementById('scheduleList');
+  if (!t) { box.innerHTML=''; return; }
+  const items = [...t.schedules].sort((a,b) => {
+    const da = (a.date||'')+'T'+(a.time||''), db=(b.date||'')+'T'+(b.time||'');
+    return da < db ? -1 : da > db ? 1 : 0;
+  });
+  if (!items.length) {
+    box.innerHTML = `<div class="empty"><span class="big">📅</span>아직 등록된 일정이 없어요.<br>위 버튼으로 일정을 추가해 보세요.</div>`;
+    return;
+  }
+  box.innerHTML = items.map(s => `
+    <div class="item">
+      <div class="head">
+        <div>
+          <div class="title">${esc(s.place) || '(장소 미입력)'}</div>
+          <div class="sub">${formatDateLabel(s.date)}${s.time ? ' · '+s.time : ''}</div>
+        </div>
+        <div class="ops">
+          <button class="btn-icon" onclick="editSchedule('${s.id}')">✏️</button>
+          <button class="btn-icon" onclick="deleteSchedule('${s.id}')">🗑️</button>
+        </div>
+      </div>
+      ${s.note ? `<div class="note">${esc(s.note)}</div>` : ''}
+    </div>`).join('');
+}
+
+function renderExpense() {
+  const t = currentTrip();
+  const box = document.getElementById('expenseList');
+  const sumBox = document.getElementById('expSummary');
+  if (!t) { box.innerHTML=''; sumBox.innerHTML=''; document.getElementById('expTotal').textContent='-'; return; }
+
+  const totals = {}; CATEGORIES.forEach(c => totals[c]=0);
+  let grand = 0;
+  t.expenses.forEach(e => { totals[e.category] = (totals[e.category]||0) + (Number(e.amount)||0); grand += Number(e.amount)||0; });
+
+  sumBox.innerHTML = CATEGORIES.map(c => `
+    <div class="chip">
+      <span class="clabel"><span class="badge cat-${c}">${c}</span></span>
+      <span class="cval">${fmtMoney(totals[c])}</span>
+    </div>`).join('');
+  document.getElementById('expTotal').textContent = fmtMoney(grand);
+
+  const items = [...t.expenses].sort((a,b) => (a.date||'') < (b.date||'') ? -1 : (a.date||'') > (b.date||'') ? 1 : 0);
+  if (!items.length) {
+    box.innerHTML = `<div class="empty"><span class="big">💰</span>아직 등록된 경비가 없어요.<br>위 버튼으로 경비를 추가해 보세요.</div>`;
+    return;
+  }
+  box.innerHTML = items.map(e => `
+    <div class="item b-${e.category}">
+      <div class="head">
+        <div>
+          <div class="title"><span class="badge cat-${e.category}">${e.category}</span> ${esc(e.place)||''}</div>
+          <div class="sub">${formatDateLabel(e.date)}</div>
+        </div>
+        <div style="text-align:right">
+          <div class="amt">${fmtMoney(e.amount)}</div>
+          <div class="ops" style="justify-content:flex-end">
+            <button class="btn-icon" onclick="editExpense('${e.id}')">✏️</button>
+            <button class="btn-icon" onclick="deleteExpense('${e.id}')">🗑️</button>
+          </div>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function formatDateLabel(d) {
+  if (!d) return '날짜 미입력';
+  const parts = d.split('-');
+  if (parts.length !== 3) return d;
+  const days = ['일','월','화','수','목','금','토'];
+  const dt = new Date(d + 'T00:00:00');
+  const wd = isNaN(dt.getTime()) ? '' : ' ('+days[dt.getDay()]+')';
+  return `${parts[0]}.${parts[1]}.${parts[2]}${wd}`;
+}
+
+function renderAll() {
+  const has = state.trips.length > 0;
+  document.getElementById('tripBody').classList.toggle('hidden', !has);
+  document.getElementById('noTrip').classList.toggle('hidden', has);
+  document.getElementById('tripMeta').style.visibility = has ? 'visible' : 'hidden';
+  document.getElementById('tripSelect').style.display = has ? '' : 'none';
+  if (has) {
+    renderTripSelect();
+    renderSchedule();
+    renderExpense();
+  }
+}
+
+/* ---------- 이벤트 바인딩 ---------- */
+document.getElementById('addTripBtn').addEventListener('click', () => openTripModal('add'));
+document.getElementById('renameTripBtn').addEventListener('click', () => { if (currentTrip()) openTripModal('edit'); });
+document.getElementById('deleteTripBtn').addEventListener('click', deleteTrip);
+document.getElementById('tripSelect').addEventListener('change', e => changeTrip(e.target.value));
+document.getElementById('mTripCurSel').addEventListener('change', onCurSelChange);
+// 모달 바깥 영역 탭하면 닫기
+document.getElementById('tripModal').addEventListener('click', e => { if (e.target.id === 'tripModal') closeTripModal(); });
+document.getElementById('confirmModal').addEventListener('click', e => { if (e.target.id === 'confirmModal') resolveConfirm(false); });
+
+/* ---------- 시작 ---------- */
+load();
+renderAll();
+</script>
+</body>
+</html>
