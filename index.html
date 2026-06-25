@@ -2,59 +2,47 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-<meta name="theme-color" content="#8ec9f0" />
-<title>구름 여행 기록</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="theme-color" content="#26282b" />
+<title>여행 기록</title>
 <style>
-  /* ===== 기본/리셋 ===== */
+  /* ===== 테마 변수 (무채색 다크) ===== */
+  :root {
+    --bg: #26282b;
+    --card: #2f3236;
+    --card-2: #34383c;
+    --line: #3d4145;
+    --line-2: #4a4e53;
+    --text: #e7e8ea;
+    --muted: #9a9ea3;
+    --faint: #7b8086;
+    --accent: #e7e8ea;        /* 밝은 강조(버튼) */
+    --accent-text: #1f2123;
+    --danger: #b56a66;
+    --radius: 10px;
+    --radius-sm: 8px;
+  }
+
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html, body { margin: 0; padding: 0; }
   body {
     font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", "맑은 고딕", system-ui, sans-serif;
-    color: #2c3e50;
+    color: var(--text);
     min-height: 100vh;
-    background: linear-gradient(180deg, #9fd6f5 0%, #bfe4f7 38%, #e3f3fc 100%);
-    background-attachment: fixed;
-    overflow-x: hidden;
+    background: var(--bg);
+    -webkit-font-smoothing: antialiased;
   }
-
-  /* ===== 구름 배경 ===== */
-  .sky { position: fixed; inset: 0; z-index: -1; overflow: hidden; }
-  .cloud {
-    position: absolute;
-    background: #ffffff;
-    border-radius: 50%;
-    filter: blur(2px);
-    opacity: 0.9;
-    box-shadow:
-      40px 12px 0 -4px #fff,
-      90px 18px 0 -2px #fff,
-      130px 8px 0 -6px #fff,
-      70px -10px 0 -8px #fff;
-    animation: drift linear infinite;
-  }
-  @keyframes drift {
-    from { transform: translateX(-260px); }
-    to   { transform: translateX(110vw); }
-  }
-  .c1 { top: 8%;  width: 90px;  height: 40px; animation-duration: 70s; opacity: .95; }
-  .c2 { top: 24%; width: 60px;  height: 28px; animation-duration: 95s; animation-delay: -30s; opacity: .8; }
-  .c3 { top: 46%; width: 110px; height: 48px; animation-duration: 120s; animation-delay: -60s; opacity: .7; }
-  .c4 { top: 64%; width: 70px;  height: 32px; animation-duration: 85s; animation-delay: -15s; opacity: .85; }
-  .c5 { top: 82%; width: 95px;  height: 42px; animation-duration: 110s; animation-delay: -45s; opacity: .65; }
 
   /* ===== 레이아웃 ===== */
-  .app { max-width: 560px; margin: 0 auto; padding: 16px 14px 120px; position: relative; }
-  header.top { text-align: center; padding: 6px 0 14px; }
-  header.top h1 { margin: 0; font-size: 22px; letter-spacing: -0.5px; color: #2c5d8a; text-shadow: 0 1px 0 #fff; }
-  header.top p { margin: 4px 0 0; font-size: 12px; color: #5d7891; }
+  .app { max-width: 560px; margin: 0 auto; padding: 18px 14px 120px; }
+  header.top { padding: 4px 2px 16px; }
+  header.top h1 { margin: 0; font-size: 21px; font-weight: 700; letter-spacing: -0.3px; color: var(--text); }
+  header.top p { margin: 5px 0 0; font-size: 12.5px; color: var(--muted); }
 
   .card {
-    background: rgba(255,255,255,0.82);
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
-    border-radius: 18px;
-    box-shadow: 0 6px 20px rgba(80,120,160,0.18);
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
     padding: 14px;
     margin-bottom: 14px;
   }
@@ -62,134 +50,116 @@
   /* ===== 여행 선택 영역 ===== */
   .trip-bar { display: flex; gap: 8px; align-items: center; }
   .trip-bar select {
-    flex: 1; min-height: 46px; font-size: 16px; border: 1px solid #cfe2f0;
-    border-radius: 12px; padding: 0 12px; background: #fff; color: #2c3e50;
+    flex: 1; min-width: 0; min-height: 46px; font-size: 16px; color: var(--text);
+    border: 1px solid var(--line-2); border-radius: var(--radius-sm); padding: 0 12px; background: var(--card-2);
   }
-  .trip-meta { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
-  .trip-meta .cur { font-size: 13px; color: #5d7891; }
-  .trip-actions { display: flex; gap: 6px; }
+  .trip-meta { display: flex; justify-content: space-between; align-items: center; margin-top: 11px; }
+  .trip-meta .cur { font-size: 13px; color: var(--muted); }
+  .trip-actions { display: flex; gap: 4px; }
 
   /* ===== 버튼 ===== */
   button {
-    font-family: inherit; cursor: pointer; border: none; border-radius: 12px;
-    font-size: 15px; min-height: 44px; padding: 0 14px; transition: transform .05s ease, filter .15s ease;
+    font-family: inherit; cursor: pointer; border: none; border-radius: var(--radius-sm);
+    font-size: 15px; min-height: 44px; padding: 0 14px;
   }
-  button:active { transform: scale(0.97); }
-  .btn-primary { background: #4a9fe0; color: #fff; font-weight: 600; }
-  .btn-primary:hover { filter: brightness(1.05); }
-  .btn-soft { background: #eaf4fb; color: #2c5d8a; }
-  .btn-ghost { background: transparent; color: #6a8aa3; min-height: 36px; padding: 0 8px; font-size: 13px; }
-  .btn-danger { background: #f6dada; color: #b5443a; font-weight: 600; }
-  .btn-icon { background: transparent; min-height: 36px; min-width: 36px; padding: 0; font-size: 17px; }
+  button:active { opacity: .85; }
+  .btn-primary { background: var(--accent); color: var(--accent-text); font-weight: 600; }
+  .btn-soft { background: var(--card-2); color: var(--text); border: 1px solid var(--line-2); }
+  .btn-ghost { background: transparent; color: var(--muted); min-height: 36px; padding: 0 8px; font-size: 13px; }
+  .btn-danger { background: var(--danger); color: #1f1414; font-weight: 600; }
+  .btn-icon { background: transparent; min-height: 36px; min-width: 36px; padding: 0; font-size: 16px; color: var(--muted); }
   .full { width: 100%; }
 
   /* ===== 탭 ===== */
-  .tabs { display: flex; gap: 8px; margin-bottom: 14px; }
+  .tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
   .tabs button {
-    flex: 1; min-height: 50px; font-size: 16px; font-weight: 600;
-    background: rgba(255,255,255,0.6); color: #6a8aa3; border-radius: 14px;
+    min-height: 48px; font-size: 15.5px; font-weight: 600;
+    background: var(--card); color: var(--muted); border: 1px solid var(--line);
   }
-  .tabs button.active { background: #4a9fe0; color: #fff; box-shadow: 0 4px 12px rgba(74,159,224,0.4); }
+  .tabs button.active { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
 
   /* ===== 폼 ===== */
-  .form-grid { display: flex; flex-direction: column; gap: 10px; }
-  .row2 { display: flex; gap: 10px; }
-  .row2 > * { flex: 1; min-width: 0; }
-  label.fld { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: #5d7891; }
+  .form-grid { display: flex; flex-direction: column; gap: 12px; }
+  /* grid로 정확히 절반씩 나눠 겹침 방지 */
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .row2 > * { min-width: 0; }
+  label.fld { display: flex; flex-direction: column; gap: 5px; font-size: 12px; color: var(--muted); }
   input, textarea, select.fldsel {
-    font-family: inherit; font-size: 16px; border: 1px solid #cfe2f0; border-radius: 12px;
-    padding: 11px 12px; background: #fff; color: #2c3e50; width: 100%;
+    font-family: inherit; font-size: 16px; border: 1px solid var(--line-2); border-radius: var(--radius-sm);
+    padding: 11px 12px; background: var(--card-2); color: var(--text); width: 100%;
   }
-  input:focus, textarea:focus, select:focus { outline: none; border-color: #4a9fe0; box-shadow: 0 0 0 3px rgba(74,159,224,0.15); }
-  textarea { resize: vertical; min-height: 54px; }
+  input::placeholder, textarea::placeholder { color: var(--faint); }
+  input:focus, textarea:focus, select:focus { outline: none; border-color: #6f757b; }
+  textarea { resize: vertical; min-height: 56px; }
+  /* 날짜/시간 입력의 다크 대응 */
+  input[type="date"], input[type="time"] { color-scheme: dark; }
 
   .add-toggle { margin-bottom: 12px; }
 
   /* ===== 리스트 항목 ===== */
   .item {
-    background: rgba(255,255,255,0.9); border-radius: 14px; padding: 12px;
-    margin-bottom: 10px; box-shadow: 0 2px 8px rgba(80,120,160,0.12);
-    border-left: 5px solid #cfe2f0;
+    background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 13px;
+    margin-bottom: 10px;
   }
-  .item .head { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
-  .item .title { font-size: 16px; font-weight: 600; }
-  .item .sub { font-size: 13px; color: #5d7891; margin-top: 3px; }
-  .item .note { font-size: 14px; color: #3a4a5a; margin-top: 6px; white-space: pre-wrap; }
-  .item .amt { font-size: 17px; font-weight: 700; color: #2c5d8a; white-space: nowrap; }
+  .item .head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+  .item .title { font-size: 15.5px; font-weight: 600; }
+  .item .sub { font-size: 13px; color: var(--muted); margin-top: 4px; }
+  .item .note { font-size: 14px; color: #c7cacd; margin-top: 8px; white-space: pre-wrap; line-height: 1.45; }
+  .item .amt { font-size: 16.5px; font-weight: 700; color: var(--text); white-space: nowrap; }
   .item .ops { display: flex; gap: 2px; }
 
-  .badge { display: inline-block; font-size: 12px; font-weight: 600; padding: 3px 9px; border-radius: 999px; color: #fff; }
-
-  /* 카테고리 색 */
-  .cat-이동수단 { background:#5b8def; } .b-이동수단 { border-left-color:#5b8def; }
-  .cat-식사   { background:#f0883e; } .b-식사   { border-left-color:#f0883e; }
-  .cat-카페   { background:#c08457; } .b-카페   { border-left-color:#c08457; }
-  .cat-숙박   { background:#7e6cd6; } .b-숙박   { border-left-color:#7e6cd6; }
-  .cat-기타   { background:#7a93a8; } .b-기타   { border-left-color:#7a93a8; }
+  .badge {
+    display: inline-block; font-size: 11.5px; font-weight: 600; padding: 2px 8px; border-radius: 5px;
+    color: var(--muted); border: 1px solid var(--line-2); background: transparent;
+  }
 
   /* ===== 경비 요약 ===== */
-  .summary { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 4px; }
+  .summary { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
   .chip {
-    background: rgba(255,255,255,0.95); border-radius: 12px; padding: 8px 10px;
-    font-size: 13px; display: flex; flex-direction: column; gap: 2px; min-width: 84px; flex: 1;
-    box-shadow: 0 2px 6px rgba(80,120,160,0.1);
+    background: var(--card-2); border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 9px 10px;
+    display: flex; flex-direction: column; gap: 4px; min-width: 0;
   }
-  .chip .clabel { color: #5d7891; font-size: 12px; }
-  .chip .cval { font-weight: 700; color: #2c3e50; font-size: 15px; }
+  .chip .clabel { color: var(--muted); font-size: 11.5px; }
+  .chip .cval { font-weight: 700; color: var(--text); font-size: 14.5px; overflow: hidden; text-overflow: ellipsis; }
   .total {
-    margin-top: 12px; background: linear-gradient(135deg,#4a9fe0,#6db4ec); color: #fff;
-    border-radius: 14px; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center;
-    box-shadow: 0 6px 16px rgba(74,159,224,0.4);
+    margin-top: 12px; background: var(--card-2); border: 1px solid var(--line-2);
+    border-radius: var(--radius-sm); padding: 14px 16px; display: flex; justify-content: space-between; align-items: center;
   }
-  .total .tlabel { font-size: 14px; opacity: .95; }
-  .total .tval { font-size: 22px; font-weight: 800; }
+  .total .tlabel { font-size: 14px; color: var(--muted); }
+  .total .tval { font-size: 21px; font-weight: 800; color: var(--text); }
 
   /* ===== 빈 상태 ===== */
-  .empty { text-align: center; color: #6a8aa3; font-size: 14px; padding: 26px 10px; line-height: 1.6; }
-  .empty .big { font-size: 30px; display: block; margin-bottom: 6px; }
+  .empty { text-align: center; color: var(--muted); font-size: 14px; padding: 28px 10px; line-height: 1.6; }
+  .empty .big { font-size: 26px; display: block; margin-bottom: 8px; opacity: .7; }
 
-  .section-title { font-size: 13px; color: #5d7891; margin: 2px 4px 8px; font-weight: 600; }
-
-  /* ===== 모달 (직접 입력창 — 인앱 브라우저에서도 동작) ===== */
+  /* ===== 모달 ===== */
   .modal-overlay {
-    position: fixed; inset: 0; z-index: 50;
-    background: rgba(40,60,80,0.45);
-    display: flex; align-items: center; justify-content: center;
-    padding: 20px;
+    position: fixed; inset: 0; z-index: 50; background: rgba(0,0,0,0.55);
+    display: flex; align-items: center; justify-content: center; padding: 20px;
   }
   .modal {
-    background: #fff; border-radius: 18px; width: 100%; max-width: 380px;
-    padding: 18px; box-shadow: 0 14px 40px rgba(30,60,90,0.35);
-    animation: pop .15s ease;
+    background: var(--card); border: 1px solid var(--line-2); border-radius: 12px; width: 100%; max-width: 380px;
+    padding: 18px; box-shadow: 0 18px 50px rgba(0,0,0,0.5);
   }
-  @keyframes pop { from { transform: scale(.94); opacity: .6; } to { transform: scale(1); opacity: 1; } }
-  .modal h3 { margin: 0 0 14px; font-size: 18px; color: #2c5d8a; }
-  .modal p.msg { margin: 2px 0 18px; font-size: 15px; line-height: 1.5; white-space: pre-wrap; }
+  .modal h3 { margin: 0 0 14px; font-size: 17px; font-weight: 700; color: var(--text); }
+  .modal p.msg { margin: 2px 0 18px; font-size: 15px; line-height: 1.55; white-space: pre-wrap; color: #cdd0d3; }
   .modal .form-grid { margin-bottom: 16px; }
 
   /* ===== 토스트 ===== */
   .toast {
     position: fixed; left: 50%; bottom: 90px; transform: translateX(-50%);
-    background: rgba(44,93,138,0.95); color: #fff; padding: 11px 18px; border-radius: 999px;
-    font-size: 14px; z-index: 60; box-shadow: 0 6px 18px rgba(0,0,0,0.25);
-    transition: opacity .3s ease; max-width: 88%; text-align: center;
+    background: #15161800; background: rgba(15,16,18,0.95); border: 1px solid var(--line-2);
+    color: var(--text); padding: 11px 18px; border-radius: var(--radius-sm);
+    font-size: 14px; z-index: 60; transition: opacity .3s ease; max-width: 88%; text-align: center;
   }
 
   .hidden { display: none !important; }
 </style>
 </head>
 <body>
-  <div class="sky">
-    <div class="cloud c1"></div>
-    <div class="cloud c2"></div>
-    <div class="cloud c3"></div>
-    <div class="cloud c4"></div>
-    <div class="cloud c5"></div>
-  </div>
-
   <div class="app">
     <header class="top">
-      <h1>☁️ 구름 여행 기록</h1>
+      <h1>여행 기록</h1>
       <p>일정과 경비를 한 곳에 기록해요</p>
     </header>
 
@@ -211,8 +181,8 @@
     <div id="tripBody">
       <!-- 탭 -->
       <div class="tabs">
-        <button id="tabSchedule" class="active" onclick="switchTab('schedule')">📅 일정</button>
-        <button id="tabExpense" onclick="switchTab('expense')">💰 경비</button>
+        <button id="tabSchedule" class="active" onclick="switchTab('schedule')">일정</button>
+        <button id="tabExpense" onclick="switchTab('expense')">경비</button>
       </div>
 
       <!-- ===== 일정 탭 ===== -->
@@ -259,7 +229,7 @@
             </label>
             <div class="row2">
               <label class="fld">날짜<input type="date" id="eDate"></label>
-              <label class="fld">금액<input type="number" id="eAmount" inputmode="decimal" placeholder="0"></label>
+              <label class="fld">금액<input type="text" id="eAmount" inputmode="numeric" placeholder="0"></label>
             </div>
             <label class="fld">장소<input type="text" id="ePlace" placeholder="예: 편의점, 지하철"></label>
             <div class="row2">
@@ -275,7 +245,7 @@
     <!-- 여행이 하나도 없을 때 -->
     <div id="noTrip" class="card empty hidden">
       <span class="big">🧳</span>
-      아직 여행이 없어요.<br>위 <b>＋ 여행</b> 버튼으로 첫 여행을 추가해 보세요!
+      아직 여행이 없어요.<br>위 <b>＋ 여행</b> 버튼으로 첫 여행을 추가해 보세요.
     </div>
   </div>
 
@@ -333,7 +303,7 @@ const CATEGORIES = ['이동수단','식사','카페','숙박','기타'];
 
 let state = { trips: [], currentTripId: null };
 let activeTab = 'schedule';
-let editing = { schedule: null, expense: null }; // 편집 중인 항목 id
+let editing = { schedule: null, expense: null };
 
 /* ---------- 저장 / 불러오기 ---------- */
 function load() {
@@ -369,6 +339,19 @@ function fmtMoney(n) {
 }
 function esc(s) { return (s||'').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 
+/* 금액 입력칸: 세 자리마다 쉼표 자동 삽입 */
+function formatAmountField(el) {
+  let v = el.value.replace(/[^\d.]/g, '');     // 숫자/점만 남김
+  const firstDot = v.indexOf('.');
+  if (firstDot !== -1) {                         // 소수점은 하나만 허용
+    v = v.slice(0, firstDot + 1) + v.slice(firstDot + 1).replace(/\./g, '');
+  }
+  const parts = v.split('.');
+  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ','); // 천 단위 콤마
+  el.value = parts.join('.');
+}
+function parseAmount(str) { return parseFloat(String(str).replace(/,/g, '')); }
+
 let toastTimer = null;
 function showToast(msg) {
   const el = document.getElementById('toast');
@@ -382,7 +365,7 @@ function showToast(msg) {
   }, 1800);
 }
 
-/* ---------- 확인 모달 (confirm 대체) ---------- */
+/* ---------- 확인 모달 ---------- */
 let confirmResolver = null;
 function showConfirm(msg, okText) {
   document.getElementById('confirmMsg').textContent = msg;
@@ -395,8 +378,8 @@ function resolveConfirm(val) {
   if (confirmResolver) { confirmResolver(val); confirmResolver = null; }
 }
 
-/* ---------- 여행 추가/수정 모달 (prompt 대체) ---------- */
-let tripModalMode = 'add'; // 'add' | 'edit'
+/* ---------- 여행 추가/수정 모달 ---------- */
+let tripModalMode = 'add';
 function openTripModal(mode) {
   tripModalMode = mode;
   const t = currentTrip();
@@ -426,13 +409,10 @@ function openTripModal(mode) {
   document.getElementById('tripModal').classList.remove('hidden');
   setTimeout(() => nameEl.focus(), 50);
 }
-function closeTripModal() {
-  document.getElementById('tripModal').classList.add('hidden');
-}
+function closeTripModal() { document.getElementById('tripModal').classList.add('hidden'); }
 function onCurSelChange() {
   const sel = document.getElementById('mTripCurSel');
-  const wrap = document.getElementById('mTripCurCustomWrap');
-  wrap.classList.toggle('hidden', sel.value !== '__custom');
+  document.getElementById('mTripCurCustomWrap').classList.toggle('hidden', sel.value !== '__custom');
 }
 function submitTripModal() {
   const name = document.getElementById('mTripName').value.trim();
@@ -477,9 +457,7 @@ function switchTab(tab) {
   document.getElementById('panelSchedule').classList.toggle('hidden', tab!=='schedule');
   document.getElementById('panelExpense').classList.toggle('hidden', tab!=='expense');
 }
-function toggleForm(id) {
-  document.getElementById(id).classList.toggle('hidden');
-}
+function toggleForm(id) { document.getElementById(id).classList.toggle('hidden'); }
 function resetForms() {
   ['sForm','eForm'].forEach(id => document.getElementById(id).classList.add('hidden'));
   editing.schedule = null; editing.expense = null;
@@ -528,7 +506,7 @@ function clearExpenseForm() { eCat.value='이동수단'; eDate.value=''; ePlace.
 function saveExpense() {
   const t = currentTrip(); if (!t) return;
   const category = eCat.value, date = eDate.value, place = ePlace.value.trim();
-  const amount = parseFloat(eAmount.value);
+  const amount = parseAmount(eAmount.value);
   if (isNaN(amount)) { showToast('금액을 입력해주세요.'); return; }
   if (editing.expense) {
     const it = t.expenses.find(e => e.id === editing.expense);
@@ -543,7 +521,8 @@ function saveExpense() {
 }
 function editExpense(id) {
   const t = currentTrip(); const it = t.expenses.find(e => e.id===id); if (!it) return;
-  eCat.value=it.category||'기타'; eDate.value=it.date||''; ePlace.value=it.place||''; eAmount.value=it.amount;
+  eCat.value=it.category||'기타'; eDate.value=it.date||''; ePlace.value=it.place||'';
+  eAmount.value = String(it.amount); formatAmountField(eAmount);
   editing.expense = id;
   document.getElementById('eSaveBtn').textContent='수정 완료';
   document.getElementById('eForm').classList.remove('hidden');
@@ -578,7 +557,7 @@ function renderSchedule() {
     return da < db ? -1 : da > db ? 1 : 0;
   });
   if (!items.length) {
-    box.innerHTML = `<div class="empty"><span class="big">📅</span>아직 등록된 일정이 없어요.<br>위 버튼으로 일정을 추가해 보세요.</div>`;
+    box.innerHTML = `<div class="empty"><span class="big">🗓</span>아직 등록된 일정이 없어요.<br>위 버튼으로 일정을 추가해 보세요.</div>`;
     return;
   }
   box.innerHTML = items.map(s => `
@@ -609,21 +588,21 @@ function renderExpense() {
 
   sumBox.innerHTML = CATEGORIES.map(c => `
     <div class="chip">
-      <span class="clabel"><span class="badge cat-${c}">${c}</span></span>
+      <span class="clabel">${c}</span>
       <span class="cval">${fmtMoney(totals[c])}</span>
     </div>`).join('');
   document.getElementById('expTotal').textContent = fmtMoney(grand);
 
   const items = [...t.expenses].sort((a,b) => (a.date||'') < (b.date||'') ? -1 : (a.date||'') > (b.date||'') ? 1 : 0);
   if (!items.length) {
-    box.innerHTML = `<div class="empty"><span class="big">💰</span>아직 등록된 경비가 없어요.<br>위 버튼으로 경비를 추가해 보세요.</div>`;
+    box.innerHTML = `<div class="empty"><span class="big">💳</span>아직 등록된 경비가 없어요.<br>위 버튼으로 경비를 추가해 보세요.</div>`;
     return;
   }
   box.innerHTML = items.map(e => `
-    <div class="item b-${e.category}">
+    <div class="item">
       <div class="head">
         <div>
-          <div class="title"><span class="badge cat-${e.category}">${e.category}</span> ${esc(e.place)||''}</div>
+          <div class="title"><span class="badge">${e.category}</span> ${esc(e.place)||''}</div>
           <div class="sub">${formatDateLabel(e.date)}</div>
         </div>
         <div style="text-align:right">
@@ -653,11 +632,7 @@ function renderAll() {
   document.getElementById('noTrip').classList.toggle('hidden', has);
   document.getElementById('tripMeta').style.visibility = has ? 'visible' : 'hidden';
   document.getElementById('tripSelect').style.display = has ? '' : 'none';
-  if (has) {
-    renderTripSelect();
-    renderSchedule();
-    renderExpense();
-  }
+  if (has) { renderTripSelect(); renderSchedule(); renderExpense(); }
 }
 
 /* ---------- 이벤트 바인딩 ---------- */
@@ -666,7 +641,7 @@ document.getElementById('renameTripBtn').addEventListener('click', () => { if (c
 document.getElementById('deleteTripBtn').addEventListener('click', deleteTrip);
 document.getElementById('tripSelect').addEventListener('change', e => changeTrip(e.target.value));
 document.getElementById('mTripCurSel').addEventListener('change', onCurSelChange);
-// 모달 바깥 영역 탭하면 닫기
+document.getElementById('eAmount').addEventListener('input', e => formatAmountField(e.target));
 document.getElementById('tripModal').addEventListener('click', e => { if (e.target.id === 'tripModal') closeTripModal(); });
 document.getElementById('confirmModal').addEventListener('click', e => { if (e.target.id === 'confirmModal') resolveConfirm(false); });
 
